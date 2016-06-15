@@ -36,7 +36,7 @@ function postData() {
 function showPeople( peeps ){
   console.log( "in showPeople: ", peeps );
   // empty output div and input field
-  $( '#my-usernameIn' ).val( "" );
+  $( '#usernameIn' ).val( "" );
   $( '#outputDiv' ).empty();
   // append each row to output div
   for( var i=0; i<peeps.length; i++ ){
