@@ -9,14 +9,14 @@ var urlencodedParser=bodyParser.urlencoded( { extended: false } );
 // pg module for postgres
 var pg = require('pg');
 // default postgress port is 5432 the end of the URL is yourDB name
-var connectionString  = 'postgres://localhost:5432/introToSQL';
+var connectionString  = 'postgres://localhost:5432/ericanderson';
 
 // our connection
 console.log( "connectionString: " + connectionString );
 
 //spin up server
 app.listen( '5000', 'localhost', function( req, res ){
-  console.log( 'listeing on 5000' );
+  console.log( 'listening on 5000' );
 });
 
 // base url
@@ -24,11 +24,27 @@ app.get('/', function(req, res) {
     res.sendFile( path.resolve( 'views/index.html' ) );
 });
 
+//updating using POST
+app.post( '/postUpdate', urlencodedParser, function(req, res){
+  console.log('in postUpdate: ' + req.body.id);
+  var thisID = req.body.id;
+  pg.connect( connectionString, function( err, client, done ) {
+    client.query( "UPDATE users2 SET active=NOT active WHERE id="+ thisID);
+  });//end app.post
+});
+
+app.post( '/postDelete', urlencodedParser, function(req, res){
+  console.log('in postDelete: ' + req.body.id);
+  var thisID = req.body.id;
+  pg.connect( connectionString, function( err, client, done ) {
+    client.query( "DELETE FROM users2 WHERE id="+ thisID);
+  });//end app.post
+});
 // ceate a new record
 app.post( '/newRecord', urlencodedParser, function( req, res ) {
     console.log( 'in people post: ' + req.body.username + ", " + req.body.active );
     pg.connect( connectionString, function( err, client, done ) {
-      client.query( 'INSERT INTO users( username, active, created ) values( $1, $2, $3 )', [ req.body.username, req.body.active, 'NOW()' ] );
+      client.query( 'INSERT INTO users2( username, active, created ) values( $1, $2, $3 )', [ req.body.username, req.body.active, 'NOW()' ] );
     }); // end connect
 }); // end post
 
@@ -37,7 +53,7 @@ app.get( '/records', function( req, res ) {
     // results will hold our results
     var results = [];
     pg.connect( connectionString, function( err, client, done ) {
-        var query = client.query('SELECT * FROM users WHERE active=true ORDER BY id DESC;');
+        var query = client.query('SELECT * FROM users2 ORDER BY id DESC;');
         // stream results back one row at a time and push into "results"
         query.on( 'row', function( row ) {
             results.push( row );
